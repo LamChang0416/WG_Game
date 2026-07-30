@@ -775,7 +775,7 @@ var ABC_WORDS_BY_LETTER = {
         ],
         [
           "獺",
-          "ㄊㄚˇ"
+          "ㄊㄚˋ"
         ]
       ],
       "img": "images/O_otter.png"
@@ -807,7 +807,7 @@ var ABC_WORDS_BY_LETTER = {
       "zy": [
         [
           "企",
-          "ㄑㄧˇ"
+          "ㄑㄧˋ"
         ],
         [
           "鵝",

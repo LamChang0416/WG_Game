@@ -25,7 +25,7 @@ function renderZhuyinText(pairs, options) {
   function renderColumn(parsed) {
     if (!parsed) return '';
     var letters = parsed.letters, tone = parsed.tone, light = parsed.light, rows = [];
-    if (light) rows.push('<span style="display:block;line-height:1;font-size:'+zySize+'px;font-weight:800;">'+esc(LIGHT_TONE)+'</span>');
+    if (light) rows.push('<span style="display:block;line-height:1;font-size:'+(Math.round(zySize*0.6*100)/100)+'px;font-weight:800;transform:translateY(60%);margin-bottom:-6px;">'+esc(LIGHT_TONE)+'</span>');
     letters.forEach(function(letter, i) {
       var isLast = i === letters.length - 1;
       if (isLast) {
