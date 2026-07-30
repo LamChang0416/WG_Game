@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ㄅㄆㄇ 聽力挑戰</title>
-<script src="https://unpkg.com/pinyin-pro@3.28.2/dist/index.js"></script>
 <script src="words-data.js"></script>
 <script src="../../shared/zhuyin-render.js"></script>
 <style>
@@ -176,7 +175,7 @@ function makeDistractor(basePairs, correctSig, usedSigs) {
 }
 
 function buildOptions(word) {
-  var correctPairs = generateZhuyinPairs(word.zh).pairs;
+  var correctPairs = word.zy;
   var correctSig = pairsSignature(correctPairs);
   var options = [{ pairs: correctPairs, correct: true }];
   var usedSigs = [correctSig];

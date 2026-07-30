@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ABC 單字卡</title>
-<script src="https://unpkg.com/pinyin-pro@3.28.2/dist/index.js"></script>
 <script src="words-data.js"></script>
 <script src="../../shared/zhuyin-render.js"></script>
 <style>
@@ -137,8 +136,7 @@ function makeFlashcard(word) {
   zhRow.className = 'wordRow';
   var zhText = document.createElement('div');
   zhText.className = 'word-zh';
-  var zy = generateZhuyinPairs(word.zh);
-  zhText.innerHTML = renderZhuyinText(zy.pairs, { hanziSize: 58, ratio: 0.34 });
+  zhText.innerHTML = renderZhuyinText(word.zy, { hanziSize: 58, ratio: 0.34 });
   var zhBtn = document.createElement('button');
   zhBtn.className = 'speakBtn';
   zhBtn.textContent = '🔊';
