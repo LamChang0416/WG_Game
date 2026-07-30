@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ABC 單字卡</title>
+<script src="https://unpkg.com/pinyin-pro@3.28.2/dist/index.js"></script>
+<script src="words-data.js"></script>
+<script src="../../shared/zhuyin-render.js"></script>
+<style>
+  :root{
+    --purple:#8e7cff; --pink:#ff8fab; --bg:#f6f5ff; --card:#ffffff;
+    --text:#2d2a45; --muted:#8b88a3; --gold:#ffc94a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh; font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",sans-serif;
+    background:linear-gradient(160deg,var(--bg),#eef1ff 60%,#fff1f7);
+    color:var(--text); padding:20px; display:flex; flex-direction:column; align-items:center;
+  }
+  h1{ font-size:22px; margin:4px 0 2px; text-align:center; }
+  .sub{ font-size:14px; color:var(--muted); margin-bottom:18px; text-align:center; }
+
+  .letterTabs{ display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; justify-content:center; max-width:640px; }
+  .letterTab{
+    padding:8px 16px; border-radius:999px; border:none; font-size:16px; font-weight:800;
+    cursor:pointer; background:#fff; color:var(--purple); box-shadow:0 2px 8px rgba(0,0,0,.08);
+    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  }
+  .letterTab.active{ background:linear-gradient(135deg,var(--purple),var(--pink)); color:#fff; }
+
+  .deck{
+    display:flex; flex-wrap:wrap; gap:18px; justify-content:center; max-width:760px; width:100%;
+  }
+  .flashcard{
+    background:var(--card); border-radius:20px; padding:18px; width:220px;
+    box-shadow:0 4px 14px rgba(0,0,0,.10); text-align:center;
+    display:flex; flex-direction:column; align-items:center;
+    border:3px solid transparent; transition:border-color .3s, transform .2s;
+  }
+  .flashcard.playing{ border-color:var(--gold); transform:scale(1.03); }
+  .flashcard img{ width:120px; height:120px; object-fit:contain; margin-bottom:10px; }
+
+  .wordRow{
+    display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
+    padding:8px 0; border-top:1px dashed #eee;
+  }
+  .wordRow:first-of-type{ border-top:none; }
+  .word-en{ font-size:19px; font-weight:800; color:var(--purple); }
+  .word-zh{ margin-top:2px; }
+
+  .speakBtn{
+    border:none; background:linear-gradient(135deg,var(--purple),var(--pink)); color:#fff;
+    width:38px; height:38px; border-radius:50%; font-size:17px; cursor:pointer; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,.15);
+    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  }
+  .speakBtn:active{ transform:scale(0.9); }
+
+  .playAllBtn{
+    margin-top:24px; padding:12px 26px; border-radius:14px; border:none; font-weight:800; font-size:15px;
+    cursor:pointer; background:linear-gradient(135deg,var(--purple),var(--pink)); color:#fff;
+    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  }
+
+  footer{ margin-top:24px; font-size:12px; color:var(--muted); text-align:center; }
+  .hubLink{ align-self:flex-start; font-size:13px; color:var(--muted); text-decoration:none; margin-bottom:8px; }
+
+  @media (max-width:480px){
+    body{ padding:12px; }
+    h1{ font-size:18px; }
+    .flashcard{ width:100%; max-width:280px; }
+  }
+</style>
+</head>
+<body>
+
+<a class="hubLink" href="index.html">← 選單</a>
+
+<h1>📇 單字卡：點喇叭聽聽看怎麼念！</h1>
+<div class="sub">看圖片、念單字 — 中文字旁邊的小字是注音，念中文的時候可以順便看喔</div>
+
+<div class="letterTabs" id="letterTabs"></div>
+<div class="deck" id="deck"></div>
+<button class="playAllBtn" id="playAllBtn">🔊 這一頁全部念一次</button>
+
+<footer>ABC 字母 × 注音遊戲 · WG_Game</footer>
+
+<script>
+/* ---- 遊戲資料（來自 words-data.js） ---- */
+var LETTERS = ABC_ALL_LETTERS.map(function (letter) {
+  return { letter: letter, words: ABC_WORDS_BY_LETTER[letter] };
+});
+
+var PLAYBACK_RATE = 0.9;
+var currentLetterIdx = 0;
+
+function playAudio(src, onEnded) {
+  var a = new Audio(src);
+  a.playbackRate = PLAYBACK_RATE;
+  if (onEnded) a.addEventListener('ended', onEnded);
+  a.play().catch(function () { /* 自動播放被擋就略過 */ });
+  return a;
+}
+
+function speakWord(word, lang, cardEl) {
+  if (cardEl) cardEl.classList.add('playing');
+  playAudio('audio/words/' + word.id + '_' + lang + '.mp3', function () {
+    if (cardEl) cardEl.classList.remove('playing');
+  });
+}
+
+function makeFlashcard(word) {
+  var el = document.createElement('div');
+  el.className = 'flashcard';
+
+  var img = document.createElement('img');
+  img.src = word.img;
+  img.alt = word.en;
+  el.appendChild(img);
+
+  var enRow = document.createElement('div');
+  enRow.className = 'wordRow';
+  var enText = document.createElement('div');
+  enText.className = 'word-en';
+  enText.textContent = word.en;
+  var enBtn = document.createElement('button');
+  enBtn.className = 'speakBtn';
+  enBtn.textContent = '🔊';
+  enBtn.setAttribute('aria-label', '念英文');
+  enBtn.addEventListener('click', function () { speakWord(word, 'en', el); });
+  enRow.appendChild(enText);
+  enRow.appendChild(enBtn);
+  el.appendChild(enRow);
+
+  var zhRow = document.createElement('div');
+  zhRow.className = 'wordRow';
+  var zhText = document.createElement('div');
+  zhText.className = 'word-zh';
+  var zy = generateZhuyinPairs(word.zh);
+  zhText.innerHTML = renderZhuyinText(zy.pairs, { hanziSize: 58, ratio: 0.34 });
+  var zhBtn = document.createElement('button');
+  zhBtn.className = 'speakBtn';
+  zhBtn.textContent = '🔊';
+  zhBtn.setAttribute('aria-label', '念中文');
+  zhBtn.addEventListener('click', function () { speakWord(word, 'zh', el); });
+  zhRow.appendChild(zhText);
+  zhRow.appendChild(zhBtn);
+  el.appendChild(zhRow);
+
+  return el;
+}
+
+function renderLetterTabs() {
+  var wrap = document.getElementById('letterTabs');
+  wrap.innerHTML = '';
+  LETTERS.forEach(function (group, i) {
+    var btn = document.createElement('button');
+    btn.className = 'letterTab' + (i === currentLetterIdx ? ' active' : '');
+    btn.textContent = group.letter;
+    btn.addEventListener('click', function () {
+      currentLetterIdx = i;
+      renderLetterTabs();
+      renderDeck();
+    });
+    wrap.appendChild(btn);
+  });
+}
+
+function renderDeck() {
+  var deck = document.getElementById('deck');
+  deck.innerHTML = '';
+  LETTERS[currentLetterIdx].words.forEach(function (word) {
+    deck.appendChild(makeFlashcard(word));
+  });
+}
+
+document.getElementById('playAllBtn').addEventListener('click', function () {
+  var words = LETTERS[currentLetterIdx].words;
+  var cards = document.querySelectorAll('.flashcard');
+  var i = 0;
+  function playNext() {
+    if (i >= words.length) return;
+    var word = words[i];
+    var cardEl = cards[i];
+    cardEl.classList.add('playing');
+    playAudio('audio/words/' + word.id + '_en.mp3', function () {
+      playAudio('audio/words/' + word.id + '_zh.mp3', function () {
+        cardEl.classList.remove('playing');
+        i++;
+        playNext();
+      });
+    });
+  }
+  playNext();
+});
+
+renderLetterTabs();
+renderDeck();
+</script>
+</body>
+</html>

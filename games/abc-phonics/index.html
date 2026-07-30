@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ABC 字母 × 注音遊戲</title>
+<style>
+  :root{
+    --purple:#8e7cff; --pink:#ff8fab; --bg:#f6f5ff; --card:#ffffff;
+    --text:#2d2a45; --muted:#8b88a3;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh; font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",sans-serif;
+    background:linear-gradient(160deg,var(--bg),#eef1ff 60%,#fff1f7);
+    color:var(--text); padding:20px; display:flex; flex-direction:column; align-items:center;
+  }
+  .hubLink{ align-self:flex-start; font-size:13px; color:var(--muted); text-decoration:none; margin-bottom:8px; }
+  h1{ font-size:26px; margin:8px 0 4px; text-align:center; }
+  .sub{ font-size:14px; color:var(--muted); margin-bottom:28px; text-align:center; }
+  .grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+    gap:18px; max-width:720px; width:100%;
+  }
+  .modeCard{
+    background:var(--card); border-radius:20px; padding:26px 20px; text-align:center;
+    text-decoration:none; color:var(--text); box-shadow:0 4px 14px rgba(0,0,0,.08);
+    transition:transform .2s, box-shadow .2s; display:flex; flex-direction:column; align-items:center; gap:8px;
+  }
+  .modeCard:hover{ transform:translateY(-4px); box-shadow:0 8px 22px rgba(0,0,0,.14); }
+  .modeCard .emoji{ font-size:44px; }
+  .modeCard h2{ font-size:18px; margin:4px 0 2px; }
+  .modeCard p{ font-size:13px; color:var(--muted); margin:0; line-height:1.5; }
+  footer{ margin-top:32px; font-size:12px; color:var(--muted); text-align:center; }
+</style>
+</head>
+<body>
+
+<a class="hubLink" href="../../index.html">← 遊戲總覽</a>
+
+<h1>🔤 ABC 字母 × 注音遊戲</h1>
+<div class="sub">選一個模式開始玩吧！</div>
+
+<div class="grid">
+  <a class="modeCard" href="match-game.html">
+    <div class="emoji">🃏</div>
+    <h2>翻牌配對</h2>
+    <p>翻兩張卡，找出圖片跟單字的好朋友</p>
+  </a>
+  <a class="modeCard" href="flashcard.html">
+    <div class="emoji">📇</div>
+    <h2>單字卡</h2>
+    <p>點喇叭聽英文、中文怎麼念</p>
+  </a>
+  <a class="modeCard" href="zhuyin-quiz.html">
+    <div class="emoji">👂</div>
+    <h2>ㄅㄆㄇ 聽力挑戰</h2>
+    <p>聽中文語音，選出正確的注音</p>
+  </a>
+  <a class="modeCard" href="collection-map.html">
+    <div class="emoji">🗺️</div>
+    <h2>闖關收集地圖</h2>
+    <p>過關收集情境圖貼紙，集滿 26 個字母</p>
+  </a>
+</div>
+
+<footer>ABC 字母 × 注音遊戲 · WG_Game</footer>
+
+</body>
+</html>
