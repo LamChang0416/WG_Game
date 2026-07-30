@@ -24,22 +24,22 @@ function renderZhuyinText(pairs, options) {
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   function renderColumn(parsed) {
     if (!parsed) return '';
-    var letters = parsed.letters, tone = parsed.tone, light = parsed.light, rows = [];
-    if (light) rows.push('<span style="display:block;line-height:1;font-size:'+(Math.round(zySize*0.6*100)/100)+'px;font-weight:800;transform:translateY(20%);margin-bottom:0.05em;">'+esc(LIGHT_TONE)+'</span>');
-    letters.forEach(function(letter, i) {
+    var letters = parsed.letters, tone = parsed.tone, light = parsed.light;
+    // 聲調符號/輕聲點都用 position:absolute 疊在該行右上角／左上角，
+    // 不佔版面寬度或高度，這樣不管字級大小、有沒有聲調，行距跟寬度都不會跑掉。
+    var rowsHtml = letters.map(function (letter, i) {
+      var isFirst = i === 0;
       var isLast = i === letters.length - 1;
-      if (isLast) {
-        // 不管這個字有沒有聲調，都保留同樣寬度的「聲調欄位」（沒聲調就隱形），
-        // 這樣同一題裡每個選項的總寬度才會一致，置中時每一行才會對齊整齊
-        var toneHtml = tone
-          ? '<span style="display:inline-block;width:0.55em;font-size:0.9em;line-height:1;transform:translateY(-0.25em);margin-left:1px;">'+esc(tone)+'</span>'
-          : '<span style="display:inline-block;width:0.55em;margin-left:1px;visibility:hidden;">ˇ</span>';
-        rows.push('<span style="display:flex;align-items:flex-start;line-height:1;font-size:'+zySize+'px;font-weight:800;"><span>'+esc(letter)+'</span>'+toneHtml+'</span>');
-      } else {
-        rows.push('<span style="display:block;line-height:1;font-size:'+zySize+'px;font-weight:800;">'+esc(letter)+'</span>');
+      var mark = '';
+      if (isFirst && light) {
+        mark = '<span style="position:absolute;top:-0.15em;left:-0.7em;font-size:0.85em;line-height:1;">'+esc(LIGHT_TONE)+'</span>';
       }
+      if (isLast && tone) {
+        mark = '<span style="position:absolute;top:-0.15em;left:100%;font-size:0.85em;line-height:1;">'+esc(tone)+'</span>';
+      }
+      return '<span style="position:relative;display:block;line-height:1;font-size:'+zySize+'px;font-weight:800;">'+esc(letter)+mark+'</span>';
     });
-    return '<span style="display:inline-flex;flex-direction:column;align-items:flex-start;justify-content:center;line-height:1;margin-left:'+gap+'px;">'+rows.join('')+'</span>';
+    return '<span style="display:inline-flex;flex-direction:column;align-items:flex-start;justify-content:center;line-height:1;margin-left:'+gap+'px;">'+rowsHtml.join('')+'</span>';
   }
   var unitsHtml = pairs.map(function (pair) {
     var hanzi = pair[0], zy = pair[1];
